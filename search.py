@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # search.py
 # ---------
 # Licensing Information:  You are free to use or extend these projects for
@@ -20,8 +19,7 @@
 In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
-=======
->>>>>>> 50acab54a0efbda6dd4020f8e7b8d4837d51af95
+
 
 import util
 import searchAgents

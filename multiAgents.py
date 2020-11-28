@@ -15,7 +15,8 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
-
+import searchAgents
+import search
 from game import Agent
 
 class ReflexAgent(Agent):
@@ -73,8 +74,20 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        foodscore=[]
+        for food in newFood.asList():
+            foodscore.append(manhattanHeuristic(newPos,food))
+        gohstscore=[]
+        for gohst in newGhostStates:
+            gohstscore.append(manhattanHeuristic(newPos,gohst.configuration.pos))
+
+
+
+
+        minval=min(gohstscore)-min(foodscore) +successorGameState.getScore()
+
+        return minval
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -85,6 +98,13 @@ def scoreEvaluationFunction(currentGameState):
     (not reflex agents).
     """
     return currentGameState.getScore()
+
+def manhattanHeuristic(position, problem, info={}):
+    "The Manhattan distance heuristic for a PositionSearchProblem"
+    xy1 = position
+    xy2 = problem
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
 
 class MultiAgentSearchAgent(Agent):
     """
