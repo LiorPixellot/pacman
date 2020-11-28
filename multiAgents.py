@@ -83,8 +83,13 @@ class ReflexAgent(Agent):
 
 
 
+        if len(foodscore)>0:
+            test=successorGameState.getScore()*50
+            minval=-(100/(1+min(gohstscore)**2))-min(foodscore)+successorGameState.getScore()*2
+        else:
+          minval = -(100 / (1 + min(gohstscore) ** 2))  + successorGameState.getScore() *2
 
-        minval=min(gohstscore)-min(foodscore) +successorGameState.getScore()
+
 
         return minval
 
