@@ -17,6 +17,7 @@ from game import Directions
 import random, util
 import searchAgents
 import search
+from game import Grid
 from game import Agent
 
 class ReflexAgent(Agent):
@@ -73,7 +74,9 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
+        height=currentGameState.data.layout.height
+        width=currentGameState.data.layout.width
+        mazesize=height*width
         foodscore=[]
         for food in newFood.asList():
             foodscore.append(manhattanHeuristic(newPos,food))
@@ -83,11 +86,13 @@ class ReflexAgent(Agent):
 
 
 
-        if len(foodscore)>0:
+        if len(foodscore)>0 and min(newScaredTimes)==0:
             test=successorGameState.getScore()*50
-            minval=-(100/(1+min(gohstscore)**2))-min(foodscore)+successorGameState.getScore()*2
+            minval=-(2*mazesize/(1+min(gohstscore)**2))-min(foodscore)- len(newFood.asList())*mazesize  # need to change 50 and 100 to max size of maze
+        elif len(foodscore)>0 and min(newScaredTimes)>0:
+            minval = (2*mazesize / (1 + min(gohstscore) ** 2)) - min(foodscore) - len(newFood.asList()) * mazesize # need to change 50 and 100 to max size of maze
         else:
-          minval = -(100 / (1 + min(gohstscore) ** 2))  + successorGameState.getScore() *2
+            minval = -(2*mazesize / (1 + min(gohstscore) ** 2))  - len(newFood.asList()) *mazesize # need to change 50 and 100 to max size of maze
 
 
 
