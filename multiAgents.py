@@ -15,7 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
-import searchAgents
+from searchAgents import mazeDistance
 import search
 from game import Grid
 from game import Agent
@@ -79,20 +79,19 @@ class ReflexAgent(Agent):
         mazesize=height*width
         foodscore=[]
         for food in newFood.asList():
-            foodscore.append(manhattanHeuristic(newPos,food))
-        gohstscore=[]
-        for gohst in newGhostStates:
-            gohstscore.append(manhattanHeuristic(newPos,gohst.configuration.pos))
+            foodscore.append(manhattanDistance(newPos,food))
+        ghostscore=[]
+        for ghost in newGhostStates:
+            ghostscore.append(manhattanDistance(newPos,ghost.configuration.pos))
 
 
 
         if len(foodscore)>0 and min(newScaredTimes)==0:
-            test=successorGameState.getScore()*50
-            minval=-(2*mazesize/(1+min(gohstscore)**2))-min(foodscore)- len(newFood.asList())*mazesize  # need to change 50 and 100 to max size of maze
+            minval=-(2*mazesize/(1+min(ghostscore)**2))-min(foodscore)- len(newFood.asList())*mazesize ## first part is for runnig from ghost second part is to reach the food and the third part is to actually eat the food when you get there
         elif len(foodscore)>0 and min(newScaredTimes)>0:
-            minval = (2*mazesize / (1 + min(gohstscore) ** 2)) - min(foodscore) - len(newFood.asList()) * mazesize # need to change 50 and 100 to max size of maze
+           minval = (2*mazesize / (1 + min(ghostscore) ** 2)) - min(foodscore) - len(newFood.asList()) * mazesize ## to
         else:
-            minval = -(2*mazesize / (1 + min(gohstscore) ** 2))  - len(newFood.asList()) *mazesize # need to change 50 and 100 to max size of maze
+            minval = -(2*mazesize / (1 + min(ghostscore) ** 2))  - len(newFood.asList()) *mazesize
 
 
 
@@ -108,12 +107,6 @@ def scoreEvaluationFunction(currentGameState):
     (not reflex agents).
     """
     return currentGameState.getScore()
-
-def manhattanHeuristic(position, problem, info={}):
-    "The Manhattan distance heuristic for a PositionSearchProblem"
-    xy1 = position
-    xy2 = problem
-    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
 
 class MultiAgentSearchAgent(Agent):
@@ -136,10 +129,39 @@ class MultiAgentSearchAgent(Agent):
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
 
+
+
 class MinimaxAgent(MultiAgentSearchAgent):
-    """
-    Your minimax agent (question 2)
-    """
+
+    def minimax(self, gameState,omek, maximizingPlayer, ):
+        agentsum = gameState.getNumAgents()
+
+        if omek == 0:
+            test=self.evaluationFunction(gameState)
+            return self.evaluationFunction(gameState)
+        if maximizingPlayer:
+            legalActions = gameState.getLegalActions(0)
+            value = [-10000000000,'Stop']
+            for action in legalActions:
+               evalfun=(self.evaluationFunction(self.minimax(gameState=gameState.generateSuccessor(0, action), omek =omek - 1, maximizingPlayer=False)),action)
+               if value[0]>evalfun[0]:
+                    return value
+               else:
+                    return evalfun
+        else:
+            for ghost in range(1, agentsum+1):
+                legalActions = gameState.getLegalActions(ghost)
+                value = [10000000000,'Stop']
+                for action in legalActions:
+                    evalfun = (self.evaluationFunction(self.minimax(gameState=gameState.generateSuccessor(0, action), omek=omek - 1,maximizingPlayer=True)),action)
+                    if value[0] < evalfun[0]:
+                        return value
+                    else:
+                        return evalfun
+
+
+
+
 
     def getAction(self, gameState):
         """
@@ -165,8 +187,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
+
+
+        best= self.minimax(gameState=gameState, omek=self.depth, maximizingPlayer=True)
+        return best[1]
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
