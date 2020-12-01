@@ -133,31 +133,30 @@ class MultiAgentSearchAgent(Agent):
 
 class MinimaxAgent(MultiAgentSearchAgent):
 
-    def minimax(self, gameState,omek, maximizingPlayer, ):
+    def minimax(self, gameState,omek, agentnum):
         agentsum = gameState.getNumAgents()
-
+        agentnum=agentnum%agentsum
+        evalfun=[None,None]
         if omek == 0:
             test=self.evaluationFunction(gameState)
-            return self.evaluationFunction(gameState)
-        if maximizingPlayer:
+            return [self.evaluationFunction(gameState),None]
+        if agentnum==0:
             legalActions = gameState.getLegalActions(0)
-            value = [-10000000000,'Stop']
+            maxval = [float('-inf'),None]
             for action in legalActions:
-               evalfun=(self.evaluationFunction(self.minimax(gameState=gameState.generateSuccessor(0, action), omek =omek - 1, maximizingPlayer=False)),action)
-               if value[0]>evalfun[0]:
-                    return value
-               else:
-                    return evalfun
+                evalfun=self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek-1,agentnum=agentnum+1)
+                evalfun[1]=action
+                if maxval[0]<evalfun[0]:
+                    maxval=evalfun
+            return  maxval
         else:
-            for ghost in range(1, agentsum+1):
-                legalActions = gameState.getLegalActions(ghost)
-                value = [10000000000,'Stop']
+                legalActions = gameState.getLegalActions(agentnum)
+                minval = [float('inf'),None]
                 for action in legalActions:
-                    evalfun = (self.evaluationFunction(self.minimax(gameState=gameState.generateSuccessor(0, action), omek=omek - 1,maximizingPlayer=True)),action)
-                    if value[0] < evalfun[0]:
-                        return value
-                    else:
-                        return evalfun
+                    evalfun= self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek,agentnum=agentnum+1)
+                    if minval[0] > evalfun[0]:
+                        minval=evalfun
+                return  minval
 
 
 
@@ -190,7 +189,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
 
 
-        best= self.minimax(gameState=gameState, omek=self.depth, maximizingPlayer=True)
+        best= self.minimax(gameState=gameState, omek=self.depth, agentnum=0)
         return best[1]
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
