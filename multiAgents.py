@@ -140,25 +140,25 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if omek == 0 or gameState.isWin() or gameState.isLose() :
             test=self.evaluationFunction(gameState)
             return [self.evaluationFunction(gameState),None]
-        if agentnum==0:
+        if agentnum==0: #agent pacman
             legalActions = gameState.getLegalActions(0)
             maxval = [float('-inf'),None]
             for action in legalActions:
                 evalfun=self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek,agentnum=agentnum+1)
-                evalfun[1]=action
-                if maxval[0]<evalfun[0]:
+                evalfun[1]=action # see what action took (garbage till the last lv)
+                if maxval[0]<evalfun[0]: #take max value
                     maxval=evalfun
             return  maxval
-        else:
+        else: #agent ghost
                 legalActions = gameState.getLegalActions(agentnum)
                 minval = [float('inf'),None]
                 for action in legalActions:
                     if agentnum==agentsum-1:
-                        evalfun= self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek-1,agentnum=agentnum+1)
+                        evalfun= self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek-1,agentnum=agentnum+1) #last ghost and after go down a lv
                     else:
                         evalfun = self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek , agentnum=agentnum + 1)
-                    evalfun[1] = action
-                    if minval[0] > evalfun[0]:
+                    evalfun[1] = action # see what action took
+                    if minval[0] > evalfun[0]: #take max value
                         minval=evalfun
                 return  minval
 
@@ -197,13 +197,50 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
+    def alphabeta(self, gameState,omek, agentnum,alpha=float('-inf'),beta=float('inf')):
+        agentsum = gameState.getNumAgents()
+        agentnum=agentnum%agentsum
+        evalfun=[None,None]
+        if omek == 0 or gameState.isWin() or gameState.isLose() :
+            test=self.evaluationFunction(gameState)
+            return [self.evaluationFunction(gameState),None]
+        if agentnum==0: #agent pacman
+            legalActions = gameState.getLegalActions(0)
+            maxval = [alpha,None]
 
+            for action in legalActions:
+                if beta <= alpha:
+                    break
+                evalfun=self.alphabeta(gameState=gameState.generateSuccessor(agentnum, action), omek=omek,agentnum=agentnum+1,alpha=alpha,beta=beta)
+                evalfun[1]=action # see what action took (garbage till the last lv)
+                if maxval[0]<evalfun[0]: #take max value
+                    maxval=evalfun
+                if alpha < maxval[0]:
+                    alpha = maxval[0]
+            return  maxval
+        else: #agent ghost
+                legalActions = gameState.getLegalActions(agentnum)
+                minval = [beta,None]
+                for action in legalActions:
+                    if beta <= alpha:
+                        break
+                    if agentnum==agentsum-1:
+                        evalfun= self.alphabeta(gameState=gameState.generateSuccessor(agentnum, action), omek=omek-1,agentnum=agentnum+1,alpha=alpha,beta=beta)
+                    else:
+                        evalfun = self.alphabeta(gameState=gameState.generateSuccessor(agentnum, action), omek=omek , agentnum=agentnum + 1,alpha=alpha,beta=beta)
+                    evalfun[1] = action # see what action took
+                    if minval[0] > evalfun[0]: #take max value
+                        minval=evalfun
+                    if beta > minval[0]:
+                        beta = minval[0]
+                return  minval
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        best = self.alphabeta(gameState=gameState, omek=self.depth, agentnum=0)
+        return best[1]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
