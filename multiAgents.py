@@ -137,14 +137,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
         agentsum = gameState.getNumAgents()
         agentnum=agentnum%agentsum
         evalfun=[None,None]
-        if omek == 0:
+        if omek == 0 or gameState.isWin() or gameState.isLose() :
             test=self.evaluationFunction(gameState)
             return [self.evaluationFunction(gameState),None]
         if agentnum==0:
             legalActions = gameState.getLegalActions(0)
             maxval = [float('-inf'),None]
             for action in legalActions:
-                evalfun=self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek-1,agentnum=agentnum+1)
+                evalfun=self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek,agentnum=agentnum+1)
                 evalfun[1]=action
                 if maxval[0]<evalfun[0]:
                     maxval=evalfun
@@ -153,12 +153,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 legalActions = gameState.getLegalActions(agentnum)
                 minval = [float('inf'),None]
                 for action in legalActions:
-                    evalfun= self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek,agentnum=agentnum+1)
+                    if agentnum==agentsum-1:
+                        evalfun= self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek-1,agentnum=agentnum+1)
+                    else:
+                        evalfun = self.minimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek , agentnum=agentnum + 1)
+                    evalfun[1] = action
                     if minval[0] > evalfun[0]:
                         minval=evalfun
                 return  minval
-
-
 
 
 
