@@ -302,7 +302,32 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Useful information you can extract from a GameState (pacman.py)
+
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    height = currentGameState.data.layout.height
+    width = currentGameState.data.layout.width
+    mazesize = height * width
+    foodscore = []
+    for food in newFood.asList():
+        foodscore.append(manhattanDistance(newPos, food))
+    ghostscore = []
+    for ghost in newGhostStates:
+        ghostscore.append(manhattanDistance(newPos, ghost.configuration.pos))
+
+    if len(foodscore) > 0 and min(newScaredTimes) == 0:
+        minval = -(2 * mazesize / (1 + min(ghostscore) ** 2)) - min(foodscore) - len(
+            newFood.asList()) * mazesize  ## first part is for runnig from ghost second part is to reach the food and the third part is to actually eat the food when you get there
+    elif len(foodscore) > 0 and min(newScaredTimes) > 0:
+        minval = (2 * mazesize / (1 + min(ghostscore) ** 2)) - min(foodscore) - len(newFood.asList()) * mazesize  ## to
+    else:
+        minval = -(2 * mazesize / (1 + min(ghostscore) ** 2)) - len(newFood.asList()) * mazesize
+
+    return minval
+
 
 # Abbreviation
 better = betterEvaluationFunction
