@@ -248,6 +248,41 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       Your expectimax agent (question 4)
     """
 
+    def Expectimax(self, gameState,omek, agentnum):
+        agentsum = gameState.getNumAgents()
+        agentnum=agentnum%agentsum
+        evalfun=[None,None]
+        numofmoves=0
+        if omek == 0 or gameState.isWin() or gameState.isLose() :
+            test=self.evaluationFunction(gameState)
+            return [self.evaluationFunction(gameState),None]
+        if agentnum==0: #agent pacman
+            legalActions = gameState.getLegalActions(0)
+            maxval = [float('-inf'),None]
+            for action in legalActions:
+                evalfun=self.Expectimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek,agentnum=agentnum+1)
+                evalfun[1]=action # see what action took (garbage till the last lv)
+                if maxval[0]<evalfun[0]: #take max value
+                    maxval=evalfun
+            return  maxval
+        else: #agent ghost
+                legalActions = gameState.getLegalActions(agentnum)
+                avgval = [0,None]
+                for action in legalActions:
+                    if agentnum==agentsum-1:
+                        evalfun= self.Expectimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek-1,agentnum=agentnum+1) #last ghost and after go down a lv
+                    else:
+                        evalfun = self.Expectimax(gameState=gameState.generateSuccessor(agentnum, action), omek=omek , agentnum=agentnum + 1)
+                    evalfun[1] = action # see what action took
+                    avgval[0] =avgval[0]+evalfun[0] #take max value
+
+                    numofmoves=numofmoves+1
+
+                if agentnum==agentsum-1:
+                    avgval[0]=avgval[0]/numofmoves
+                return  avgval
+
+
     def getAction(self, gameState):
         """
         Returns the expectimax action using self.depth and self.evaluationFunction
@@ -256,7 +291,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        best = self.Expectimax(gameState=gameState, omek=self.depth, agentnum=0)
+        return best[1]
 
 def betterEvaluationFunction(currentGameState):
     """
