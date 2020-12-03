@@ -218,6 +218,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 if alpha < maxval[0]:
                     alpha = maxval[0]
             return  maxval
+
         else: #agent ghost
                 legalActions = gameState.getLegalActions(agentnum)
                 minval = [beta,None]
